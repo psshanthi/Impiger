@@ -1,0 +1,73 @@
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+using System.IO;
+
+namespace ConsoleApp2
+{
+    [Serializable]
+    class Employee
+    {
+        public String Fname, Lname, Address;
+        public int Empid;
+    }
+
+    class Program
+    {
+        static void Main(string[] args)
+        {
+            List <Employee> EmpObj = new List <Employee>();
+            String Proceed=string.Empty;
+            int i = 1001;
+            do
+            {
+                Employee newemp = new Employee();
+
+                Console.WriteLine("Enter the First Name");
+                newemp.Fname = Console.ReadLine();
+
+                Console.WriteLine("Enter the Last Name");
+                newemp.Lname = Console.ReadLine();
+
+                Console.WriteLine("Enter the Address");
+                newemp.Address = Console.ReadLine();
+                newemp.Empid = i++;
+                EmpObj.Add(newemp);
+                
+                Console.WriteLine("Do you want to continue, Yes or No?");
+                Proceed = Console.ReadLine();
+            } while (Proceed.Trim().ToLower().Equals("yes"));
+
+            string serializationFile = Path.Combine(Environment.CurrentDirectory, @"Emp.txt");
+
+            //serialize or write
+            using (Stream stream = File.Open(serializationFile, FileMode.Create))
+            {
+                var bformatter = new System.Runtime.Serialization.Formatters.Binary.BinaryFormatter();
+                bformatter.Serialize(stream, EmpObj);
+            }
+                        
+            //deserialize or read
+            List<Employee> employee;
+            using (Stream stream = File.Open(serializationFile, FileMode.Open))
+            {
+                var bformatter = new System.Runtime.Serialization.Formatters.Binary.BinaryFormatter();
+                employee = (List<Employee>)bformatter.Deserialize(stream);
+                foreach (var item in employee)
+                {
+                     Console.WriteLine("===========================================");
+                     Console.WriteLine("Emp. Id: " + item.Empid);
+                     Console.WriteLine("Emp. First Name: " + item.Fname);
+                     Console.WriteLine("Emp. Last Name: " + item.Lname);
+                     Console.WriteLine("Emp. Address: " + item.Address);
+                      Console.WriteLine("===========================================");
+                }
+            }
+            
+            Console.WriteLine("**********   Have a Great Day   **********");
+            Console.ReadLine();
+        }
+    }
+}
