@@ -1,0 +1,112 @@
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+using System.IO;
+
+namespace ConsoleApp2
+{
+    [Serializable]
+    class Employee
+    {
+        public String Fname, Lname, Address;
+        public int Empid;
+    }
+
+    class Program
+    {
+        private static string serializationFile;
+
+        static void Main(string[] args)
+        {
+            int choice;
+            serializationFile = Path.Combine(Environment.CurrentDirectory, @"Emp.txt");
+            do
+            {
+                Console.WriteLine("Choices");
+                Console.WriteLine("*******");
+                Console.WriteLine("1: Write Details");
+                Console.WriteLine("2: Display Details");
+                Console.WriteLine("Enter the Choice");
+                choice = int.Parse(Console.ReadLine());
+
+                List<Employee> EmpObj = new List<Employee>();
+                switch (choice)
+                {
+                    case 1:
+                        GetDetails(EmpObj);
+                        serializationFile = WriteDetails(EmpObj);
+                        Console.WriteLine("Successful");
+                        break;
+                    case 2:
+                        DisplayDetails();
+                       // Console.ReadLine();
+                        break;
+                    default:
+                        Console.WriteLine("Thank You");
+                        break;
+                }
+            } while (choice > 0 && choice <= 2);
+            Console.ReadLine(); 
+        }
+
+        private static void DisplayDetails()
+        {
+            //deserialize or read
+            List<Employee> employee;
+            using (Stream stream = File.Open(serializationFile, FileMode.Open))
+            {
+                var bformatter = new System.Runtime.Serialization.Formatters.Binary.BinaryFormatter();
+                employee = (List<Employee>)bformatter.Deserialize(stream);
+                foreach (var item in employee)
+                {
+                    Console.WriteLine("===========================================");
+                    Console.WriteLine("Emp. Id: " + item.Empid);
+                    Console.WriteLine("Emp. First Name: " + item.Fname);
+                    Console.WriteLine("Emp. Last Name: " + item.Lname);
+                    Console.WriteLine("Emp. Address: " + item.Address);
+                    Console.WriteLine("===========================================");
+                }
+            }
+
+            Console.WriteLine("**********   Have a Great Day   **********");
+        }
+
+        private static string WriteDetails(List<Employee> EmpObj)
+        {
+            //serialize or write
+            using (Stream stream = File.Open(serializationFile, FileMode.Create))
+            {
+                var bformatter = new System.Runtime.Serialization.Formatters.Binary.BinaryFormatter();
+                bformatter.Serialize(stream, EmpObj);
+            }
+
+            return serializationFile;
+        }
+
+        private static void GetDetails(List<Employee> EmpObj)
+        {
+            String Proceed = string.Empty;
+            int i = 1001;
+            do
+            {
+                Employee newemp = new Employee();
+
+                Console.WriteLine("Enter the First Name");
+                newemp.Fname = Console.ReadLine();
+
+                Console.WriteLine("Enter the Last Name");
+                newemp.Lname = Console.ReadLine();
+
+                Console.WriteLine("Enter the Address");
+                newemp.Address = Console.ReadLine();
+                newemp.Empid = i++;
+                EmpObj.Add(newemp);
+
+                Console.WriteLine("Do you want to continue, Yes or No?");
+                Proceed = Console.ReadLine();
+            } while (Proceed.Trim().ToLower().Equals("yes"));
+        }
+    }
+}
